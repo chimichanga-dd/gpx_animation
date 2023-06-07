@@ -1,2 +1,4 @@
 *.gpx
 /images
+__pycache__
+*.gif
