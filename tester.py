@@ -71,6 +71,9 @@ within_1_previous_tracks = {"lats": [], "lons": []}
 after_1_previous_tracks = {"lats": [], "lons": []}
 
 
+def pad_with_zero(number):
+    return f"0{number}" if number < 10 else number
+
 
 def plot_points(axis, lats, lons, color="red"):
     if lats and lons:
@@ -132,6 +135,18 @@ for idx in range(0, combined_gpx_attributes["last_step"], step):
         "#a04000",
     )
 
+    idx_in_hours = pad_with_zero((idx // (60 * 60)) % 24)
+    idx_in_minutes = pad_with_zero((idx // (60)) % 60)
+    idx_in_seconds = pad_with_zero(idx % 60)
+
+    plt.text(
+        0.99,
+        0.99,
+        f"{idx_in_hours}:{idx_in_minutes}:{idx_in_seconds}",
+        ha="right",
+        va="top",
+        transform=ax.transAxes,
+    )
 
     # save image
     print(
