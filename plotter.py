@@ -96,6 +96,17 @@ def main():
         * (-1 if combined_gpx_attributes["max_lat"] < 0 else 1)
     )
 
+    ax.set_xlim(plot_border_x_min, plot_border_x_max)
+    ax.set_ylim(plot_border_y_min, plot_border_y_max)
+    ax.axis("off")
+    ax.tick_params(left=False, labelleft=False, bottom=False, labelbottom=False)
+
+    cx.add_basemap(
+        ax,
+        crs=crs_projection,
+        attribution="",
+    )
+
     # create images
     for idx in range(0, combined_gpx_attributes["last_step"], step):
         if (
@@ -103,19 +114,6 @@ def main():
             or idx not in combined_gpx_attributes["lons"]
         ):
             continue
-
-        ax.cla()
-
-        ax.set_xlim(plot_border_x_min, plot_border_x_max)
-        ax.set_ylim(plot_border_y_min, plot_border_y_max)
-        ax.axis("off")
-        ax.tick_params(left=False, labelleft=False, bottom=False, labelbottom=False)
-
-        cx.add_basemap(
-            ax,
-            crs=crs_projection,
-            attribution="",
-        )
 
         current_lats = combined_gpx_attributes["lats"][idx]
         current_lons = combined_gpx_attributes["lons"][idx]
@@ -143,7 +141,7 @@ def main():
         idx_in_minutes = pad_with_zero((idx // (60)) % 60)
         idx_in_seconds = pad_with_zero(idx % 60)
 
-        plt.text(
+        text = plt.text(
             0.99,
             0.99,
             f"{idx_in_hours}:{idx_in_minutes}:{idx_in_seconds}",
@@ -161,6 +159,11 @@ def main():
         file_names.append(image_file_path)
 
         # prep for next round
+        for point in plt.gca().collections:
+            point.remove()
+
+        text.remove()
+
         after_1_previous_tracks["lats"].extend(within_1_previous_tracks["lats"])
         after_1_previous_tracks["lons"].extend(within_1_previous_tracks["lons"])
         within_1_previous_tracks["lats"] = current_lats
