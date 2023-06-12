@@ -1,7 +1,7 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import contextily as cx
-import gpx_parser
+import gpx_parser_v2
 import os
 import imageio.v3 as iio
 from pygifsicle import optimize
@@ -33,17 +33,19 @@ def plot_points(axis, lats, lons, color="red", crs_projection="EPSG:4326"):
     return axis
 
 
-def updateline(num, points, line1, file_names):
-    line1.set_data(points[..., : num * 5])
-    print(f"saving plot for step {int(num)} of {int(len(points[0])//5)}")
-    return line1
+def updateline(num, routes, file_names):
+    for idx, route in enumerate(routes):
+        line, points = route
+        line.set_data(points[..., : num * 5])
+        print(f"saving plot for step {int(num)}:{idx} of {int(len(points[0])//5)}")
+    # return line1
 
 
 def main():
     activities = [
-        # "/Users/daviddixon/Documents/Code/plotter/6189805369.gpx",
+        "/Users/daviddixon/Documents/Code/plotter/6189805369.gpx",
         "/Users/daviddixon/Documents/Code/plotter/8754420234.gpx",
-        # "/Users/daviddixon/Documents/Code/plotter/Tough_Stuff.gpx",
+        "/Users/daviddixon/Documents/Code/plotter/Tough_Stuff.gpx",
     ]
     images_folder = "./images"
     gif_path = "./gpx_combined.gif"
@@ -58,13 +60,14 @@ def main():
         "points": [],
         "lats": {},
         "lons": {},
+        "routes": [],
     }
     crs_projection = "EPSG:4326"
     within_1_previous_tracks = {"lats": [], "lons": []}
     after_1_previous_tracks = {"lats": [], "lons": []}
 
     for activity in activities:
-        gpx_parser.parse(activity, combined_gpx_attributes)
+        gpx_parser_v2.parse(activity, combined_gpx_attributes)
 
     # create image directory
     isExist = os.path.exists(images_folder)
@@ -107,33 +110,34 @@ def main():
     ax.tick_params(left=False, labelleft=False, bottom=False, labelbottom=False)
 
     cx.add_basemap(
-        ax,
-        crs=crs_projection,
-        attribution="",
+        ax, crs=crs_projection, attribution="", source=cx.providers.Esri.WorldGrayCanvas
     )
 
-    (l,) = ax.plot([], [], "o", ls="-", markevery=[-1], mfc="red", mec="blue")
+    lines = []
+    max_frames = -math.inf
+    for route in combined_gpx_attributes["routes"]:
+        (l,) = ax.plot([], [], "o", ls="-", markevery=[-1], mfc="red", mec="blue")
 
-    points_len = len(combined_gpx_attributes["points"])
-    # points = np.empty((points_len, 2))
-    pointsLon = []
-    pointsLat = []
-    # print(points)
-    for idx in range(points_len):
-        point = combined_gpx_attributes["points"][idx]
-        pointsLon.append(point["lon"])
-        pointsLat.append(point["lat"])
+        points_len = len(route)
+        pointsLon = []
+        pointsLat = []
+        for idx in range(points_len):
+            point = route[idx]
+            pointsLon.append(point["lon"])
+            pointsLat.append(point["lat"])
 
-    points = np.array([pointsLon, pointsLat])
+        points = np.array([pointsLon, pointsLat])
+        max_frames = max(max_frames, points_len)
+        lines.append((l, points))
 
     # print(points)
 
     anim = animation.FuncAnimation(
         fig,
         updateline,
-        fargs=(points, l, file_names),
+        fargs=(lines, file_names),
         # frames=(points_len),
-        frames=(points_len // 5),
+        frames=(max_frames // 5),
     )
     writervideo = animation.FFMpegWriter(fps=30)
     anim.save(
