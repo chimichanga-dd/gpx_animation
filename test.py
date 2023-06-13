@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.cm as mplcm
+import matplotlib.colors as colors
 import contextily as cx
 import gpx_parser_v2
 import os
 import numpy as np
 import math
 import time
-import matplotlib.animation as animation
 
 import glob
-from operator import itemgetter
 
 
 # instantiating the decorator
@@ -50,12 +51,12 @@ def updateline(num, fr_number, routes, max_frames):
 
 
 def main():
-    activities = [
-        "/Users/daviddixon/Documents/Code/plotter/activities/6189805369.gpx",
-        "/Users/daviddixon/Documents/Code/plotter/activities/8754420234.gpx",
-        "/Users/daviddixon/Documents/Code/plotter/activities/Tough_Stuff.gpx",
-    ]
-    # activities = glob.glob("../strava-tool/OnlyRuns/*.gpx")
+    # activities = [
+    #     "/Users/daviddixon/Documents/Code/plotter/activities/6189805369.gpx",
+    #     "/Users/daviddixon/Documents/Code/plotter/activities/8754420234.gpx",
+    #     "/Users/daviddixon/Documents/Code/plotter/activities/Tough_Stuff.gpx",
+    # ]
+    activities = glob.glob("../strava-tool/OnlyRuns/*.gpx")
 
     images_folder = "./images"
     combined_gpx_attributes = {
@@ -125,6 +126,13 @@ def main():
     )
 
     routes = []
+
+    # colors
+    NUM_COLORS = len(combined_gpx_attributes["routes"])
+    cm = plt.get_cmap("turbo")
+    cNorm = colors.Normalize(vmin=0, vmax=NUM_COLORS - 1)
+    scalarMap = mplcm.ScalarMappable(norm=cNorm, cmap=cm)
+    ax.set_prop_cycle(color=[scalarMap.to_rgba(i) for i in range(NUM_COLORS)])
 
     for route in combined_gpx_attributes["routes"]:
         (l,) = ax.plot([], [], "o", ls="-", markevery=[-1], mfc="red", mec="blue")
