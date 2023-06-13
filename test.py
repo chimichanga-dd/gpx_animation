@@ -7,6 +7,9 @@ import math
 import time
 import matplotlib.animation as animation
 
+import glob
+from operator import itemgetter
+
 
 # instantiating the decorator
 def pad_with_zero(number):
@@ -32,6 +35,7 @@ def updateline(num, fr_number, routes, max_frames):
             print(f"clearing marker for line-{idx}")
             line.set_marker("")
             route["has_marker"] = False
+            continue
 
         if time_bucket not in time_segment_indexes:
             continue
@@ -47,10 +51,11 @@ def updateline(num, fr_number, routes, max_frames):
 
 def main():
     activities = [
-        "/Users/daviddixon/Documents/Code/plotter/6189805369.gpx",
-        "/Users/daviddixon/Documents/Code/plotter/8754420234.gpx",
-        "/Users/daviddixon/Documents/Code/plotter/Tough_Stuff.gpx",
+        "/Users/daviddixon/Documents/Code/plotter/activities/6189805369.gpx",
+        "/Users/daviddixon/Documents/Code/plotter/activities/8754420234.gpx",
+        "/Users/daviddixon/Documents/Code/plotter/activities/Tough_Stuff.gpx",
     ]
+    # activities = glob.glob("../strava-tool/OnlyRuns/*.gpx")
 
     images_folder = "./images"
     combined_gpx_attributes = {
@@ -71,7 +76,6 @@ def main():
     if not isExist:
         os.makedirs(images_folder)
 
-    # fig = plt.figure()
     fig = plt.figure(figsize=(16, 9), dpi=(1920 / 16))
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
     ax = fig.add_subplot()
@@ -133,13 +137,13 @@ def main():
 
         points = np.array([pointsLon, pointsLat])
         routes.append(
-            # (l, points, route["time_segment_indexes"], route["last_step"])
             {
                 "line": l,
                 "points": points,
                 "time_segment_indexes": route["time_segment_indexes"],
                 "last_step": route["last_step"],
                 "has_marker": True,
+                "fp": route["fp"],
             }
         )
 
