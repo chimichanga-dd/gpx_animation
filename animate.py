@@ -7,7 +7,6 @@ import gpx_parser_v2
 import os
 import numpy as np
 import math
-import time
 
 import glob
 
@@ -50,8 +49,8 @@ def updateline(num, fr_number, routes, max_frames, bucket):
     fr_number.set_text(f"{idx_in_hours}:{idx_in_minutes}:{idx_in_seconds}")
 
 
-def main():
-    activities = glob.glob("../strava-tool/OnlyRuns/*.gpx")
+def create_animation():
+    activities = glob.glob("./only_runs/*.gpx")
 
     images_folder = "./images"
     combined_gpx_attributes = {
@@ -174,8 +173,3 @@ def main():
         writer=writervideo,
     )
     print(f"total routes: {len(combined_gpx_attributes['routes'])}")
-
-
-start_time = time.time()
-main()
-print(time.time() - start_time, "seconds")
