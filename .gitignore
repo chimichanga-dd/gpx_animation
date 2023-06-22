@@ -1,4 +1,7 @@
-*.gpx
-/images
-__pycache__
+.DS_Store
 *.gif
+*.gpx
+*.mp4
+__pycache__
+/only_runs
+/strava_export

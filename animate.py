@@ -3,7 +3,7 @@ import matplotlib.animation as animation
 import matplotlib.cm as mplcm
 import matplotlib.colors as colors
 import contextily as cx
-import gpx_parser_v2
+import gpx_parser
 import os
 import numpy as np
 import math
@@ -64,7 +64,7 @@ def create_animation():
     crs_projection = "EPSG:4326"
 
     for activity in activities:
-        gpx_parser_v2.parse(activity, combined_gpx_attributes)
+        gpx_parser.parse(activity, combined_gpx_attributes)
 
     # create image directory
     isExist = os.path.exists(images_folder)
