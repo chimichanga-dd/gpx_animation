@@ -17,8 +17,8 @@ def pad_with_zero(number):
     return f"0{number}" if number < 10 else number
 
 
-def updateline(num, fr_number, routes, max_frames):
-    step = 5
+def updateline(num, fr_number, routes, max_frames, bucket):
+    step = bucket
     time_bucket = num * step
     for idx, route in enumerate(routes):
         line, points, time_segment_indexes, last_step, has_marker = [
@@ -51,11 +51,6 @@ def updateline(num, fr_number, routes, max_frames):
 
 
 def main():
-    # activities = [
-    #     "/Users/daviddixon/Documents/Code/plotter/activities/6189805369.gpx",
-    #     "/Users/daviddixon/Documents/Code/plotter/activities/8754420234.gpx",
-    #     "/Users/daviddixon/Documents/Code/plotter/activities/Tough_Stuff.gpx",
-    # ]
     activities = glob.glob("../strava-tool/OnlyRuns/*.gpx")
 
     images_folder = "./images"
@@ -155,19 +150,30 @@ def main():
             }
         )
 
-    max_frames = (combined_gpx_attributes["last_step"] // 5) + 2
+    fps = 30
+    video_time_limit_seconds = 300
+    something = video_time_limit_seconds * fps
+    bucket = 5
+    max_frames = int((combined_gpx_attributes["last_step"] / bucket) + 2)
+    while max_frames >= something:
+        bucket += 1
+        max_frames = int((combined_gpx_attributes["last_step"] / bucket) + 2)
+
+    print(max_frames)
+
     anim = animation.FuncAnimation(
         fig,
         updateline,
-        fargs=(fr_number, routes, max_frames),
+        fargs=(fr_number, routes, max_frames, bucket),
         frames=(max_frames),
     )
 
-    writervideo = animation.FFMpegWriter(fps=30)
+    writervideo = animation.FFMpegWriter(fps=fps)
     anim.save(
         "tester.mp4",
         writer=writervideo,
     )
+    print(f"total routes: {len(combined_gpx_attributes['routes'])}")
 
 
 start_time = time.time()
