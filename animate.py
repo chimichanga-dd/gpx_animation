@@ -162,7 +162,7 @@ def create_animation(only_gpx_folder, output_video_name):
 
     writervideo = animation.FFMpegWriter(fps=fps)
     anim.save(
-        output_video_name,
+        f"{output_video_name}.mp4",
         writer=writervideo,
     )
     print(f"total routes: {len(combined_gpx_attributes['routes'])}")
