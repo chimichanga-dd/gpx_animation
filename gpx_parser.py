@@ -56,9 +56,10 @@ def parse(input, combined_gpx_attributes):
     temp_max_lon = -math.inf
     temp_last_step = 0
 
-    sf_boundary_long = (-122.5285460125, -122.3569265964)
-    sf_boundary_lat = (37.8445401679, 37.6875447784)
-    is_inside_sf = False
+    # TODO: update to handle user input boundaries
+    # sf_boundary_long = (-122.5285460125, -122.3569265964)
+    # sf_boundary_lat = (37.8445401679, 37.6875447784)
+    # is_inside_sf = False
 
     for trkseg in trksegs:
         trkpts = trkseg.findall(ns + "trkpt")
@@ -87,21 +88,23 @@ def parse(input, combined_gpx_attributes):
             temp_max_lon = max(temp_max_lon, track_point["lon"])
             temp_last_step = max(temp_last_step, time_bucket)
 
-            if (
-                track_point["lon"] > sf_boundary_long[0]
-                and track_point["lon"] < sf_boundary_long[1]
-                and track_point["lat"] < sf_boundary_lat[0]
-                and track_point["lat"] > sf_boundary_lat[1]
-            ):
-                is_inside_sf = True
+            # TODO: update to handle user input boundaries
+            # if (
+            #     track_point["lon"] > sf_boundary_long[0]
+            #     and track_point["lon"] < sf_boundary_long[1]
+            #     and track_point["lat"] < sf_boundary_lat[0]
+            #     and track_point["lat"] > sf_boundary_lat[1]
+            # ):
+            #     is_inside_sf = True
 
             last_step = max(last_step, time_bucket)
             current_route.append(track_point)
             time_bucket_end_index[time_bucket] = counter
             counter += 1
 
-    if not is_inside_sf:
-        return
+    # TODO: update to handle user input boundaries
+    # if not is_inside_sf:
+    #     return
 
     combined_gpx_attributes["min_lat"] = min(
         combined_gpx_attributes["min_lat"], temp_min_lat

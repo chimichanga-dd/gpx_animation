@@ -3,5 +3,5 @@
 *.gpx
 *.mp4
 __pycache__
-/only_runs
+/only_gpx
 /strava_export

@@ -11,7 +11,6 @@ import math
 import glob
 
 
-# instantiating the decorator
 def pad_with_zero(number):
     return f"0{number}" if number < 10 else number
 
@@ -49,10 +48,9 @@ def updateline(num, fr_number, routes, max_frames, bucket):
     fr_number.set_text(f"{idx_in_hours}:{idx_in_minutes}:{idx_in_seconds}")
 
 
-def create_animation():
-    activities = glob.glob("./only_runs/*.gpx")
+def create_animation(only_gpx_folder, output_video_name):
+    activities = glob.glob(f"{only_gpx_folder}/*.gpx")
 
-    images_folder = "./images"
     combined_gpx_attributes = {
         "min_lat": math.inf,
         "max_lat": -math.inf,
@@ -65,11 +63,6 @@ def create_animation():
 
     for activity in activities:
         gpx_parser.parse(activity, combined_gpx_attributes)
-
-    # create image directory
-    isExist = os.path.exists(images_folder)
-    if not isExist:
-        os.makedirs(images_folder)
 
     fig = plt.figure(figsize=(16, 9), dpi=(1920 / 16))
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
@@ -169,7 +162,7 @@ def create_animation():
 
     writervideo = animation.FFMpegWriter(fps=fps)
     anim.save(
-        "tester.mp4",
+        output_video_name,
         writer=writervideo,
     )
     print(f"total routes: {len(combined_gpx_attributes['routes'])}")

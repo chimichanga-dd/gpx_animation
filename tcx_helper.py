@@ -1,11 +1,26 @@
+import shutil
+import gzip
 import re
-import argparse
+from gpx_converter import Converter
 import xml.etree.ElementTree as et
 
-# takes in a TCX file and outputs a CSV file
+
+def unzip(zipped_tcx_file_path, new_file_path):
+    # unzip
+    with gzip.open(zipped_tcx_file_path, "rb") as f_in:
+        with open(new_file_path, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+    # remove breaking added space
+    with open(new_file_path) as file:
+        lines = file.readlines()
+        lines[0] = '<?xml version="1.0" encoding="UTF-8" ?> \n'
+    with open(new_file_path, "w") as file:
+        for line in lines:
+            file.write(line)
 
 
-def convert(input, output):
+def convert_to_csv(input, output):
     tree = et.parse(input)
     root = tree.getroot()
     m = re.match(r"^({.*})", root.tag)
@@ -83,3 +98,45 @@ def convert(input, output):
                 fout.write(",".join((time, latitude, longitude, altitude, bpm)) + "\n")
 
     fout.close()
+
+
+def convert_to_gpx(tcx_file_path, gpx_output_path):
+    csv_path = tcx_file_path.replace("tcx", "csv")
+
+    # remove breaking added space
+    with open(tcx_file_path) as file:
+        lines = file.readlines()
+        lines[0] = '<?xml version="1.0" encoding="UTF-8" ?> \n'
+
+    with open(tcx_file_path, "w") as file:
+        for line in lines:
+            file.write(line)
+
+    # convert tcx to csv
+    convert_to_csv(tcx_file_path, csv_path)
+
+    # # remove blank lat longs
+    with open(csv_path) as file:
+        lines = file.readlines()
+
+    with open(csv_path, "w") as file:
+        for line in lines:
+            splits = line.split(",")
+            if len(splits) < 3:
+                continue
+            lat, long = splits[1], splits[2]
+            if lat == "" or long == "":
+                continue
+            file.write(line)
+
+    # dont make gpx from blank files
+    with open(csv_path, "r") as file:
+        if len(file.readlines()) < 2:
+            return
+
+    Converter(input_file=csv_path).csv_to_gpx(
+        lats_colname="LatitudeDegrees",
+        longs_colname="LongitudeDegrees",
+        output_file=gpx_output_path,
+        times_colname="Time",
+    )
