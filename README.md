@@ -2,7 +2,9 @@
 
 Sample Output of 330 runs:
 
-https://github.com/chimichanga-dd/gpx_animation/assets/32625668/74a738da-fbd5-4fd1-b976-bb701e82a3d3
+https://github.com/chimichanga-dd/gpx_animation/assets/32625668/e62bdb50-d19f-4eb9-8397-f29f1348e553
+
+
 
 ## What is this?
 
